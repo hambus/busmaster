@@ -8,9 +8,12 @@ namespace BusMaster.Hubs
 {
   public class MasterHub : Hub
   {
-    public async Task LoginIn()
+    public async Task Login(string group)
     {
-      Console.WriteLine("in login");
+
+      Console.WriteLine($"in login: {group}");
+      await Clients.All.SendAsync("loginResponse", $"Login with group: {group}");
+      return;
     }
   }
 }
