@@ -16,5 +16,9 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\commonLib\HambusCommonLibrary\HambusCommonLibrary.csproj" />
+  </ItemGroup>
+
 
 </Project>
