@@ -12,6 +12,7 @@ namespace BusMaster.Hubs
     {
 
       Console.WriteLine($"in login: {group}");
+      await Groups.AddToGroupAsync(Context.ConnectionId, group);
       await Clients.All.SendAsync("loginResponse", $"Login with group: {group}");
       return;
     }
