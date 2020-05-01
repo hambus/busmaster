@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using HambusCommonLibrary;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,11 @@ namespace BusMaster.Hubs
       Console.WriteLine($"in login: {group}");
       await Groups.AddToGroupAsync(Context.ConnectionId, group);
       await Clients.All.SendAsync("loginResponse", $"Login with group: {group}");
+      return;
+    }
+    public async Task RadioStateChange(RigState state)
+    {
+      await Clients.Group("radio").SendAsync("state", state);
       return;
     }
   }

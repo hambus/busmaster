@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\commonLib\HambusCommonLibrary\HambusCommonLibrary.csproj" />
+    <ProjectReference Include="..\commonLib\HambusCommonLibrary\CoreHambusCommonLibrary.csproj" />
   </ItemGroup>
 
 
