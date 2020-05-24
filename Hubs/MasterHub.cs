@@ -1,4 +1,5 @@
-﻿using HambusCommonLibrary;
+﻿using CoreHambusCommonLibrary.Services;
+using HambusCommonLibrary;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,11 @@ namespace BusMaster.Hubs
 {
   public class MasterHub : Hub
   {
+    public IGlobalDataService GlobalData { get; set; }
+    public MasterHub(IGlobalDataService globalDb)
+    {
+      GlobalData = globalDb;
+    }
     public async Task Login(string group)
     {
 

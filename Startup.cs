@@ -1,4 +1,5 @@
 using BusMaster.Hubs;
+using CoreHambusCommonLibrary.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace BusMaster
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
+      services.AddSingleton(new GlobalDataService());
       services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
       {
         builder
@@ -36,6 +38,7 @@ namespace BusMaster
       //services.AddSingleton<IAuth, DatabaseAuth>();
       //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
       services.AddMvc();
+      
 
     }
 
