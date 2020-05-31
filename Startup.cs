@@ -21,7 +21,7 @@ namespace BusMaster
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddSingleton(new GlobalDataService());
+      services.AddSingleton(GlobalDataServiceSqlite.Instance);
       services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
       {
         builder
