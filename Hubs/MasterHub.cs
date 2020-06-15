@@ -15,12 +15,16 @@ namespace BusMaster.Hubs
     {
       GlobalData = globalDb;
     }
-    public async Task Login(string group)
+    public async Task Login(string name, List<string> groups)
     {
+      Console.WriteLine($"in login: {name}");
 
-      Console.WriteLine($"in login: {group}");
-      await Groups.AddToGroupAsync(Context.ConnectionId, group);
-      await Clients.All.SendAsync("loginResponse", $"Login with group: {group}");
+      foreach (var group in groups)
+      {
+        Console.WriteLine($"in groups: {group}");
+      }
+      //await Groups.AddToGroupAsync(Context.ConnectionId, group);
+      await Clients.All.SendAsync("loginResponse", $"Login with group: {name}");
       return;
     }
     public async Task RadioStateChange(RigState state)
