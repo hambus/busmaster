@@ -27,20 +27,22 @@ namespace BusMaster
         builder
         .AllowAnyMethod()
         .AllowAnyHeader()
-        .AllowCredentials()
-        //.AllowAnyOrigin();
+        //.AllowCredentials()
+        .AllowAnyOrigin()
         .WithOrigins("http://localhost:7300");
       }));
 
       services.AddSignalR();
+      //services.AddSingleton<IGlobalDataService, GlobalDataServiceSqlite>();
       //services.AddSingleton(typeof(IDatabase), typeof(InMemoryDB));
       //services.AddSingleton<IDatabase, InMemoryDB>();
       //services.AddSingleton<IAuth, DatabaseAuth>();
       //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
       services.AddMvc();
-      
+
 
     }
+
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
