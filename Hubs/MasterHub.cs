@@ -11,9 +11,9 @@ namespace BusMaster.Hubs
   public class MasterHub : Hub
   {
     public IGlobalDataService GlobalData { get; set; }
-    public MasterHub()
+    public MasterHub(IGlobalDataService globalDb)
     {
-      GlobalData = GlobalDataServiceSqlite.Instance;
+      GlobalData = globalDb;
     }
     public async Task Login(string group)
     {
