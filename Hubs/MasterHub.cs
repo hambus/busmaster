@@ -1,10 +1,9 @@
-﻿using CoreHambusCommonLibrary.Services;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using CoreHambusCommonLibrary.Services;
 using HambusCommonLibrary;
 using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BusMaster.Hubs
 {
@@ -31,6 +30,10 @@ namespace BusMaster.Hubs
     {
       await Clients.Group("RadioStateChange").SendAsync("state", state);
       return;
+    }
+    public async Task GetConfiguration(string busName)
+    {
+
     }
   }
 }
