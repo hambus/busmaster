@@ -56,8 +56,8 @@ namespace BusMaster
             .ConfigureWebHostDefaults(webBuilder =>
             {
               webBuilder.UseStartup<Startup>();
-              _ = webBuilder.UseUrls($"http://*:{gConfig.Host}");
-
+              var conf = GlobalDataServiceSqlite.Instance;
+              _ = webBuilder.UseUrls($"http://*:{conf.Host}");
             });
     static void RunOptions(Options opts)
     {
