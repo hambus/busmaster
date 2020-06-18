@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CoreHambusCommonLibrary.DataLib;
 using CoreHambusCommonLibrary.Services;
 using HambusCommonLibrary;
 using Microsoft.AspNetCore.SignalR;
@@ -23,7 +24,7 @@ namespace BusMaster.Hubs
         Console.WriteLine($"in groups: {group}");
       }
       //await Groups.AddToGroupAsync(Context.ConnectionId, group);
-      await Clients.All.SendAsync("loginResponse", $"Login with group: {name}");
+      await Clients.Caller.SendAsync("ReceiveConfigation", $"Login with group: {name}");
       return;
     }
     public async Task RadioStateChange(RigState state)
@@ -31,8 +32,9 @@ namespace BusMaster.Hubs
       await Clients.Group("RadioStateChange").SendAsync("state", state);
       return;
     }
-    public async Task GetConfiguration(string busName)
+    public async Task SetConfiguration(string busName, BusConfiguration config)
     {
+      var bConf = new BusConfiguration();
 
     }
   }
