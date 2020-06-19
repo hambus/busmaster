@@ -62,7 +62,7 @@ namespace BusMaster
     static void RunOptions(Options opts)
     {
 
-      conf.Port = 7300;
+      conf!.Port = 7300;
       if (opts.Name != null)
         conf.Name = opts.Name;
 

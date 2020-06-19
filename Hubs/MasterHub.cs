@@ -18,7 +18,7 @@ namespace BusMaster.Hubs
     public async Task Login(string name, List<string> groups)
     {
       Console.WriteLine($"in login: {name}");
-      var busConf = new BusConfiguration();
+      var busConf = new BusConfigurationDB();
       busConf.Id = 20;
       busConf.Configuration = "This should be a json";
       foreach (var group in groups)
@@ -34,9 +34,9 @@ namespace BusMaster.Hubs
       await Clients.Group("RadioStateChange").SendAsync("state", state);
       return;
     }
-    public async Task SetConfiguration(string busName, BusConfiguration config)
+    public async Task SetConfiguration(string busName, BusConfigurationDB config)
     {
-      var bConf = new BusConfiguration();
+      var bConf = new BusConfigurationDB();
 
     }
   }
