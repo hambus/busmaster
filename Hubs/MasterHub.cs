@@ -18,13 +18,15 @@ namespace BusMaster.Hubs
     public async Task Login(string name, List<string> groups)
     {
       Console.WriteLine($"in login: {name}");
-
+      var busConf = new BusConfiguration();
+      busConf.Id = 20;
+      busConf.Configuration = "This should be a json";
       foreach (var group in groups)
       {
         Console.WriteLine($"in groups: {group}");
       }
       //await Groups.AddToGroupAsync(Context.ConnectionId, group);
-      await Clients.Caller.SendAsync("ReceiveConfigation", $"Login with group: {name}");
+      await Clients.Caller.SendAsync("ReceiveConfigation", busConf);
       return;
     }
     public async Task RadioStateChange(RigState state)

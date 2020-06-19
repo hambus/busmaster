@@ -30,10 +30,10 @@ namespace BusMaster
       //[Option('P', "parity", Required = false, HelpText = "Comm Port parity: (odd, even, none, mark).")]
       //public string Parity { get; set; }
     }
-    static GlobalDataServiceSqlite? gConfig = GlobalDataServiceSqlite.Instance;
+    static GlobalDataServiceSqlite? conf;
     public static void Main(string[] args)
     {
-  
+      conf = GlobalDataServiceSqlite.Instance;
       try
       {
 
@@ -57,21 +57,22 @@ namespace BusMaster
             {
               webBuilder.UseStartup<Startup>();
               var conf = GlobalDataServiceSqlite.Instance;
-              _ = webBuilder.UseUrls($"http://*:{conf.Host}");
+              _ = webBuilder.UseUrls($"http://*:{conf.Host}:{conf.Port}");
             });
     static void RunOptions(Options opts)
     {
 
-      gConfig = GlobalDataServiceSqlite.Instance;
+      conf.Port = 7300;
       if (opts.Name != null)
-        gConfig.Name = opts.Name;
+        conf.Name = opts.Name;
 
       if (string.IsNullOrWhiteSpace(opts.Host))
-        gConfig.Host = "*";
+        conf.Host = "*";
 
       if (opts.Port != null)
-        gConfig.Port = opts.Port;
-      gConfig.InitDB();
+        conf.Port = opts.Port;
+ 
+      conf.InitDB();
 
     }
     static void HandleParseError(IEnumerable<Error> errs)
