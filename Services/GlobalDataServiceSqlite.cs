@@ -102,9 +102,10 @@ namespace CoreHambusCommonLibrary.Services
     private void CreateInitalEntryForMasterBus(IDbCommand cmd, IDataReader reader)
     {
       if (this.Port == null) this.Port = 7300;
- 
+
+      var conf = "{}";
       reader.Close();
-      cmd.CommandText = $"insert into master_conf ( version, port, name) values ( 1.0, {Port}, \"{Name}\")";
+      cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( 1.0,  \"{Name}\", \"{conf}\")";
       cmd.ExecuteNonQuery();
     }
 
@@ -113,7 +114,7 @@ namespace CoreHambusCommonLibrary.Services
       var createCmd = "CREATE table IF NOT EXISTS [master_conf] (" +
         "[id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, " +
         "[name]  TEXT NOT NULL, " +
-        "[Configuration] TEXT" +
+        "[configuration] TEXT, " +
         "[version]  NUMERIC NOT NULL DEFAULT 1 " +
          ")";
       Console.WriteLine(createCmd);
