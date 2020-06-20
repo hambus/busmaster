@@ -18,8 +18,8 @@ namespace BusMaster
       [Option('h', "host", Required = false, HelpText = "Name of host that Master Bus will listen")]
       public string? Host { get; set; }
 
-      [Option('n', "name", Required = true, HelpText = "Name of the instance.")]
-      public string? Name { get; set; } = "";
+      //[Option('n', "name", Required = true, HelpText = "Name of the instance.")]
+      //public string? Name { get; set; } = "";
 
       //[Option('c', "commport", Required = false, HelpText = "Comm Port to connect to.")]
       //public string CommPort { get; set; }
@@ -63,8 +63,6 @@ namespace BusMaster
     {
 
       conf!.Port = 7300;
-      if (opts.Name != null)
-        conf.Name = opts.Name;
 
       if (string.IsNullOrWhiteSpace(opts.Host))
         conf.Host = "*";

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CoreHambusCommonLibrary.DataLib;
 using CoreHambusCommonLibrary.Services;
@@ -17,15 +18,15 @@ namespace BusMaster.Hubs
     }
     public async Task Login(string name, List<string> groups)
     {
+      var rigConf = RigConf.Instance;
       Console.WriteLine($"in login: {name}");
       var busConf = new BusConfigurationDB();
       busConf.Id = 20;
-      busConf.Configuration = "This should be a json";
+      busConf.Configuration = JsonSerializer.Serialize(rigConf);
       foreach (var group in groups)
       {
         Console.WriteLine($"in groups: {group}");
       }
-      //await Groups.AddToGroupAsync(Context.ConnectionId, group);
       await Clients.Caller.SendAsync("ReceiveConfigation", busConf);
       return;
     }

@@ -19,7 +19,6 @@
     },
     "BusMaster": {
       "commandName": "Project",
-      "commandLineArgs": "-n busmaster",
       "launchUrl": "weatherforecast",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
