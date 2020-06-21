@@ -37,8 +37,13 @@ namespace BusMaster.Hubs
     }
     public async Task SetConfiguration(string busName, BusConfigurationDB config)
     {
-      var bConf = new BusConfigurationDB();
 
+
+    }
+    public async Task<List<BusConfigurationDB>> GetListOfBusesConfig()
+    {
+      var busList = new List<BusConfigurationDB>();
+      return busList;
     }
   }
 }
