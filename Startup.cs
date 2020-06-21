@@ -53,10 +53,6 @@ namespace BusMaster
       app.UseStaticFiles();
       app.UseAuthorization();
 
-      //app.UseEndpoints(endpoints =>
-      //{
-      //  endpoints.MapControllers();
-      //});
       app.UseCors("CorsPolicy");
       app.UseEndpoints(endpoints =>
       {

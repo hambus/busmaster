@@ -27,7 +27,7 @@ namespace BusMaster.Hubs
       {
         Console.WriteLine($"in groups: {group}");
       }
-      await Clients.Caller.SendAsync("ReceiveConfigation", busConf);
+      await Clients.Caller.SendAsync("ReceiveConfiguration", busConf);
       return;
     }
     public async Task RadioStateChange(RigState state)
