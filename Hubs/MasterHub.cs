@@ -22,6 +22,7 @@ namespace BusMaster.Hubs
       Console.WriteLine($"in login: {name}");
       var busConf = new BusConfigurationDB();
       busConf.Id = 20;
+      busConf.Name = name;
       busConf.Configuration = JsonSerializer.Serialize(rigConf);
       foreach (var group in groups)
       {
