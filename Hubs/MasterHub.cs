@@ -25,7 +25,7 @@ namespace BusMaster.Hubs
     public override async Task OnDisconnectedAsync(Exception ex)
     {
       Console.WriteLine($"Disconnect: connectionid: {Context.ConnectionId}");
-      //Console.WriteLine($"--> in OnDisconnectedAsync: {ex.Message} <--");
+
     }
     public async Task Login(string name, List<string> groups)
     {
@@ -60,12 +60,22 @@ namespace BusMaster.Hubs
       await Clients.Group("RadioStateChange").SendAsync("state", state);
       return;
     }
-    public async Task SetConfiguration(string busName, BusConfigurationDB config)
+    public async Task SaveConfiguration(string? busName, BusConfigurationDB? config)
     {
-
-
+      if (config.Id == null) {
+        await GlobalData.UpdateBusEntry(busName, config);
+      }
     }
-    public async Task<List<BusConfigurationDB>> GetListOfBusesConfig()
+    public async Task<BusConfigurationDB?> GetBusByName(string busName, BusConfigurationDB config)
+    {
+      if (config.Id == null)
+      {
+        var rc = await GlobalData.QueryBusByName(busName);
+        return rc;
+      }
+      return null;
+    }
+    public async Task<List<BusConfigurationDB>> GetListOfBuses()
     {
       var busList = new List<BusConfigurationDB>();
       return busList;

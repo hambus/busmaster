@@ -77,25 +77,35 @@ namespace CoreHambusCommonLibrary.Services
       }
     }
 
-    private void QueryApps(IDbConnection conn, string name)
+    public async Task<BusConfigurationDB?> QueryBusByName(string name)
     {
+      BusConfigurationDB? busConf = null;
+      try
+      {
+        using (var conn = new SqliteConnection(ConnString))
+        {
+          var commandText = $"SELECT name FROM master_conf where name = '{name.ToLower()}'";
+          var cmd = new SqliteCommand(commandText, conn);
+          var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
+          if (reader.HasRows)
+          {
+            busConf = new BusConfigurationDB();
+            busConf.Id = (int)reader["id"];
+            busConf.Name = (string)reader["name"];
+            busConf.Version = (int)reader["version"];
+            busConf.Configuration = (string)reader["configuration"];
+          }
 
-      var cmd = conn.CreateCommand();
-      cmd.CommandText = $"SELECT name FROM master_conf where name = '{name}'";
-
-      //var reader = cmd.ExecuteReader();
-
-      //if (!reader.Read())
-      //{
-      //  CreateInitalEntryForMasterBus(cmd, reader);
-      //}
-      //else
-      //{
-      //  UpdateBusEntry(cmd);
-      //}
+          return busConf;
+        }
+      } catch(Exception e)
+      {
+        Console.WriteLine($"QueryBusByName: {e.Message}");
+        return null;
+      }
     }
 
-    private void UpdateBusEntry(BusConfigurationDB? conf)
+    public async Task UpdateBusEntry(string? name, BusConfigurationDB? conf)
     {
       using (var conn = new SqliteConnection(ConnString))
       {
@@ -104,12 +114,12 @@ namespace CoreHambusCommonLibrary.Services
         {
           var cmd = conn.CreateCommand();
           cmd.CommandText = $"update into master_conf ( version, name, configuration) values " +
-            $"( 1.0,  '{conf!.Name}', '{conf.Configuration}') where id = '{conf.Id}'";
-          cmd.ExecuteNonQuery();
+            $"( 1.0,  '{conf!.Name.ToLower()}', '{conf.Configuration}') where id = '{conf.Id}'";
+          await cmd.ExecuteNonQueryAsync();
         }
       }
     }
-    private void InsertBusEntry(BusConfigurationDB conf)
+    public async Task InsertBusEntry(BusConfigurationDB conf)
     {
       using (var conn = new SqliteConnection(ConnString))
       {
@@ -118,7 +128,7 @@ namespace CoreHambusCommonLibrary.Services
         using (var transaction = conn.BeginTransaction())
         {
           cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( 1.0,  \"{conf.Name}\", \"{conf.Configuration}\")";
-          cmd.ExecuteNonQuery();
+          await cmd.ExecuteNonQueryAsync();
         }
       }
     }
@@ -142,10 +152,10 @@ namespace CoreHambusCommonLibrary.Services
     private void CreateTable(IDbConnection conn)
     {
       var createCmd = "CREATE table IF NOT EXISTS [master_conf] (" +
-        "[id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, " +
-        "[name]  TEXT NOT NULL, " +
+        "[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, " +
+        "[name] TEXT NOT NULL, " +
         "[configuration] TEXT, " +
-        "[version]  NUMERIC NOT NULL DEFAULT 1 " +
+        "[version] NUMERIC NOT NULL DEFAULT 1 " +
          ")";
       Console.WriteLine(createCmd);
       conn.Execute(createCmd);
@@ -157,10 +167,11 @@ namespace CoreHambusCommonLibrary.Services
       {
         conn.Open();
         var list = new List<BusConfigurationDB>();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = $"SELECT id, name, configuration, version FROM master_conf";
 
-        using (var reader = cmd.ExecuteReader())
+        var commandText = $"SELECT id, name, configuration, version FROM master_conf";
+        var cmd = new SqliteCommand(commandText, conn);
+        //var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
+        using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default))
         {
           while (reader.Read())
           {
