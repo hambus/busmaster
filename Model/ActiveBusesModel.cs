@@ -1,4 +1,5 @@
-﻿using BusMaster.Model;
+﻿using System.Collections.Generic;
+using BusMaster.Model;
 
 namespace BusMaster
 {
@@ -9,5 +10,6 @@ namespace BusMaster
     public string? Name { get; set; }
     public BusType? Type { get; set; }
     public BusConfigBase? Configuration { get; set; }
+    public List<string>? PortList { get; set; }
   }
 }
