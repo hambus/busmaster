@@ -32,6 +32,7 @@ namespace BusMaster
 
       services.AddSignalR();
       services.AddSingleton<IGlobalDataService, GlobalDataServiceSqlite>();
+      services.AddSingleton<ActiveBusesService>();
       //services.AddSingleton<IAuth, DatabaseAuth>();
       //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
       services.AddMvc();

@@ -42,7 +42,7 @@ namespace CoreHambusCommonLibrary.Services
 
     public GlobalDataServiceSqlite()
     {
-
+      InitDB();
     }
 
     public void InitDB()
@@ -80,10 +80,12 @@ namespace CoreHambusCommonLibrary.Services
     public async Task<BusConfigurationDB?> QueryBusByName(string name)
     {
       BusConfigurationDB? busConf = null;
-      try
+
+      using (var conn = new SqliteConnection(ConnString))
       {
-        using (var conn = new SqliteConnection(ConnString))
+        try
         {
+          conn.Open();
           var commandText = $"SELECT name FROM master_conf where name = '{name.ToLower()}'";
           var cmd = new SqliteCommand(commandText, conn);
           var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
@@ -98,10 +100,12 @@ namespace CoreHambusCommonLibrary.Services
 
           return busConf;
         }
-      } catch(Exception e)
-      {
-        Console.WriteLine($"QueryBusByName: {e.Message}");
-        return null;
+        catch (Exception e)
+        {
+
+          Console.WriteLine($"QueryBusByName: {e.Message}");
+          return null;
+        }
       }
     }
 
@@ -161,7 +165,7 @@ namespace CoreHambusCommonLibrary.Services
       conn.Execute(createCmd);
     }
 
-    public async Task<List<BusConfigurationDB>> GetBusConfigList() 
+    public async Task<List<BusConfigurationDB>> GetBusConfigList()
     {
       using (var conn = new SqliteConnection(ConnString))
       {
@@ -199,7 +203,8 @@ namespace CoreHambusCommonLibrary.Services
 
         using (var reader = cmd.ExecuteReader())
         {
-          while (reader.Read()) {
+          while (reader.Read())
+          {
             var table = reader.GetString(0);
             rc = !string.IsNullOrWhiteSpace(table);
             break;

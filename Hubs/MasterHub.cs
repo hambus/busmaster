@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using BusMaster.Model;
-using BusMaster.Services;
 using CoreHambusCommonLibrary.DataLib;
+using CoreHambusCommonLibrary.Model;
 using CoreHambusCommonLibrary.Services;
 using HambusCommonLibrary;
 using Microsoft.AspNetCore.SignalR;
@@ -14,9 +13,11 @@ namespace BusMaster.Hubs
   public class MasterHub : Hub
   {
     public IGlobalDataService GlobalData { get; set; }
-    public MasterHub(IGlobalDataService globalDb)
+    public ActiveBusesService ActiveBuses { get; set; }
+    public MasterHub(IGlobalDataService globalDb, ActiveBusesService activesBuses)
     {
       GlobalData = globalDb;
+      this.ActiveBuses = activesBuses;
     }
 
     //public override async Task OnConnectedAsync()
@@ -34,18 +35,15 @@ namespace BusMaster.Hubs
       name = name.ToLower();
       var rigConf = RigConf.Instance;
       Console.WriteLine($"in login: {name}");
-      var busConf = new BusConfigurationDB();
-      var activeBuses = new ActiveBusesService();
-      activeBuses.Ports = ports;
-      busConf.Id = 20;
-      busConf.Name = name;
-      busConf.Configuration = JsonSerializer.Serialize(rigConf);
 
-      foreach (var group in groups)
-      {
-        Console.WriteLine($"in groups: {group}");
-        await this.Groups.AddToGroupAsync(this.Context.ConnectionId, group);
-      }
+      BusConfigurationDB? busConf = null;// = new BusConfigurationDB();
+
+      ActiveBuses.Ports = ports;
+      ActiveBuses.Name = name;
+      ActiveBuses.Configuration = "{}";
+
+      var conf = await GetBusByName(name);
+
       if (name == "control")
       {
         var busPacket = new UiInfoPacketModel();
@@ -53,11 +51,31 @@ namespace BusMaster.Hubs
         await Clients.Caller.SendAsync("InfoPacket", busPacket);
         return;
       }
+      if (conf != null)
+      {
+        await setGroups(groups);
+        await Clients.Caller.SendAsync("ReceiveConfiguration", conf);
+      }
+      else
+      {
+        var errorReport = new HamBusError();
+        errorReport.ErrorNum = HamBusErrorNum.NoConfigure;
+        errorReport.Message = $"No configuration found:  Please go to http://localhost/7300";
+        await Clients.Caller.SendAsync("ErrorReport", errorReport);
+      }
 
-      await this.Groups.AddToGroupAsync(this.Context.ConnectionId, name);
-      await Clients.Caller.SendAsync("ReceiveConfiguration", busConf);
       return;
     }
+
+    private async Task setGroups(List<string> groups)
+    {
+      foreach (var group in groups)
+      {
+        Console.WriteLine($"in groups: {group}");
+        await this.Groups.AddToGroupAsync(this.Context.ConnectionId, group);
+      }
+    }
+
     public async Task RadioStateChange(RigState state)
     {
       await Clients.Group("RadioStateChange").SendAsync("state", state);
@@ -65,18 +83,15 @@ namespace BusMaster.Hubs
     }
     public async Task SaveConfiguration(string? busName, BusConfigurationDB? config)
     {
-      if (config.Id == null) {
+      if (config?.Id == null)
+      {
         await GlobalData.UpdateBusEntry(busName, config);
       }
     }
-    public async Task<BusConfigurationDB?> GetBusByName(string busName, BusConfigurationDB config)
+    public async Task<BusConfigurationDB?> GetBusByName(string busName)
     {
-      if (config.Id == null)
-      {
-        var rc = await GlobalData.QueryBusByName(busName);
-        return rc;
-      }
-      return null;
+      var rc = await GlobalData.QueryBusByName(busName);
+      return rc;
     }
     public async Task<List<BusConfigurationDB>> GetListOfBuses()
     {
