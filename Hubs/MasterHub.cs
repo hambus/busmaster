@@ -83,9 +83,11 @@ namespace BusMaster.Hubs
     }
     public async Task SaveConfiguration(string? busName, BusConfigurationDB? config)
     {
-      if (config?.Id == null)
+      if (config?.Id != null)
       {
         await GlobalData.UpdateBusEntry(busName, config);
+      } else {
+        await GlobalData.InsertBusEntry(config);
       }
     }
     public async Task<BusConfigurationDB?> GetBusByName(string busName)
