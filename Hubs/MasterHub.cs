@@ -14,6 +14,7 @@ namespace BusMaster.Hubs
   {
     public IGlobalDataService GlobalData { get; set; }
     public ActiveBusesService ActiveBuses { get; set; }
+    
     public MasterHub(IGlobalDataService globalDb, ActiveBusesService activesBuses)
     {
       GlobalData = globalDb;
@@ -81,7 +82,7 @@ namespace BusMaster.Hubs
       await Clients.Group("RadioStateChange").SendAsync("state", state);
       return;
     }
-    public async Task SaveConfiguration(string? busName, BusConfigurationDB? config)
+    public async Task SaveConfiguration(string? busName, BusConfigurationDB config)
     {
       if (config?.Id != null)
       {
