@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using BusMaster.Model;
 using CoreHambusCommonLibrary.DataLib;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -117,9 +118,17 @@ namespace CoreHambusCommonLibrary.Services
         using (var transaction = conn.BeginTransaction())
         {
           var cmd = conn.CreateCommand();
-          cmd.CommandText = $"update into master_conf ( version, name, configuration) values " +
-            $"( 1.0,  '{conf!.Name.ToLower()}', '{conf.Configuration}') where id = '{conf.Id}'";
+          cmd.CommandText = $"update into master_conf ( version, name, configuration) values ( 1.0,  '{conf!.Name.ToLower()}', '{conf.Configuration}') where id = '{conf.Id}'";
+          cmd.CommandText = $"update into master_conf ( version, name, configuration) values ( @version,  @name, @conf) where id = @id";
+          cmd.Parameters.AddWithValue("@version", conf.Version);
+          cmd.Parameters.AddWithValue("@name", conf.Name);
+          cmd.Parameters.AddWithValue("@conf", conf.Configuration);
+          cmd.Parameters.AddWithValue("@id", conf.Id);
+
+          cmd.Prepare();
           await cmd.ExecuteNonQueryAsync();
+
+          transaction.Commit();
         }
       }
     }
@@ -132,11 +141,10 @@ namespace CoreHambusCommonLibrary.Services
         using (var transaction = conn.BeginTransaction())
         {
           var cmd = conn.CreateCommand();
-          //cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( 1.0,  \"{conf.Name}\", \"json({conf.Configuration})\")";
-          cmd.CommandText = $"insert into master_conf ( version, name, configuration, bustype) values ( @version, @name, @conf, @bustype)";
+          cmd.CommandText = "insert into master_conf ( version, name, configuration, bustype) values ( @version, @name, @conf, @bustype)";
           cmd.Parameters.AddWithValue("@version", conf.Version);
-          cmd.Parameters.AddWithValue("@name",conf.Name);
-          cmd.Parameters.AddWithValue("@bustype",(int) conf.BusType);
+          cmd.Parameters.AddWithValue("@name", conf.Name);
+          cmd.Parameters.AddWithValue("@bustype", (int)conf.BusType);
           cmd.Parameters.AddWithValue("@conf", conf.Configuration);
           cmd.Prepare();
 
@@ -183,9 +191,9 @@ namespace CoreHambusCommonLibrary.Services
         conn.Open();
         var list = new List<BusConfigurationDB>();
 
-        var commandText = $"SELECT id, name, configuration, version FROM master_conf";
+        var commandText = $"SELECT id, name, configuration, version, bustype FROM master_conf";
         var cmd = new SqliteCommand(commandText, conn);
-        //var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
+        
         using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default))
         {
           while (reader.Read())
@@ -195,6 +203,7 @@ namespace CoreHambusCommonLibrary.Services
             item.Name = reader.GetString(1);
             item.Configuration = reader.GetString(2);
             item.Version = reader.GetInt32(3);
+            item.BusType = (BusType) reader.GetInt32(4);
             list.Add(item);
             break;
           }

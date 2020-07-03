@@ -32,10 +32,8 @@ namespace BusMaster.Hubs
     //}
     public async Task Login(string name, List<string> groups, List<string> ports)
     {
-      Console.WriteLine("start of login");
       name = name.ToLower();
-      var rigConf = RigConf.Instance;
-      Console.WriteLine($"in login: {name}");
+
 
       BusConfigurationDB? busConf = null;// = new BusConfigurationDB();
 
@@ -44,10 +42,13 @@ namespace BusMaster.Hubs
       ActiveBuses.Configuration = "{}";
 
       var conf = await GetBusByName(name);
+      var confs = await GlobalData.GetBusConfigList();
+
 
       if (name == "control")
       {
         var busPacket = new UiInfoPacketModel();
+        busPacket.BusesInDb = confs;
 
         await Clients.Caller.SendAsync("InfoPacket", busPacket);
         return;
