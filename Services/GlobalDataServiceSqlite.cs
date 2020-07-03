@@ -128,10 +128,18 @@ namespace CoreHambusCommonLibrary.Services
       using (var conn = new SqliteConnection(ConnString))
       {
         conn.Open();
-        var cmd = conn.CreateCommand();
+
         using (var transaction = conn.BeginTransaction())
         {
-          cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( 1.0,  \"{conf.Name}\", \"{conf.Configuration}\")";
+          var cmd = conn.CreateCommand();
+          //cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( 1.0,  \"{conf.Name}\", \"json({conf.Configuration})\")";
+          cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( @version, @name, @conf)";
+          cmd.Parameters.AddWithValue("@version", conf.Version);
+          cmd.Parameters.AddWithValue("@name",conf.Name);
+          cmd.Parameters.AddWithValue("@bustype",(int) conf.BusType);
+          cmd.Parameters.AddWithValue("@conf", conf.Configuration);
+          cmd.Prepare();
+          //\"{conf.Name}\", \"json({conf.Configuration})\")";
           await cmd.ExecuteNonQueryAsync();
         }
       }
@@ -159,7 +167,8 @@ namespace CoreHambusCommonLibrary.Services
         "[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, " +
         "[name] TEXT NOT NULL, " +
         "[configuration] TEXT, " +
-        "[version] NUMERIC NOT NULL DEFAULT 1 " +
+        "[version] NUMERIC NOT NULL DEFAULT 1, " +
+        "[bustype] NUMERIC NOT NULL DEFAULT 0 " +
          ")";
       Console.WriteLine(createCmd);
       conn.Execute(createCmd);

@@ -82,12 +82,15 @@ namespace BusMaster.Hubs
       await Clients.Group("RadioStateChange").SendAsync("state", state);
       return;
     }
-    public async Task SaveConfiguration(string? busName, BusConfigurationDB config)
+    public async Task SaveConfiguration(string busName , BusConfigurationDB config)
     {
+      Console.WriteLine(busName);
       if (config?.Id != null)
       {
         await GlobalData.UpdateBusEntry(busName, config);
-      } else {
+      }
+      else
+      {
         await GlobalData.InsertBusEntry(config);
       }
     }
