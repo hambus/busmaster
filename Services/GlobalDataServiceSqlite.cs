@@ -133,15 +133,15 @@ namespace CoreHambusCommonLibrary.Services
         {
           var cmd = conn.CreateCommand();
           //cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( 1.0,  \"{conf.Name}\", \"json({conf.Configuration})\")";
-          cmd.CommandText = $"insert into master_conf ( version, name, configuration) values ( @version, @name, @conf)";
+          cmd.CommandText = $"insert into master_conf ( version, name, configuration, bustype) values ( @version, @name, @conf, @bustype)";
           cmd.Parameters.AddWithValue("@version", conf.Version);
           cmd.Parameters.AddWithValue("@name",conf.Name);
           cmd.Parameters.AddWithValue("@bustype",(int) conf.BusType);
           cmd.Parameters.AddWithValue("@conf", conf.Configuration);
           cmd.Prepare();
-          //\"{conf.Name}\", \"json({conf.Configuration})\")";
+
           await cmd.ExecuteNonQueryAsync();
-          Console.WriteLine("finish exec of insert");
+
           await transaction.CommitAsync();
         }
       }
