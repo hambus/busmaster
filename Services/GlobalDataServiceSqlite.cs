@@ -141,6 +141,8 @@ namespace CoreHambusCommonLibrary.Services
           cmd.Prepare();
           //\"{conf.Name}\", \"json({conf.Configuration})\")";
           await cmd.ExecuteNonQueryAsync();
+          Console.WriteLine("finish exec of insert");
+          await transaction.CommitAsync();
         }
       }
     }
