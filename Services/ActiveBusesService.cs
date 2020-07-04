@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-using CoreHambusCommonLibrary.DataLib;
-using Dapper;
-using Microsoft.Data.Sqlite;
+﻿using System.Collections.Generic;
 
 namespace CoreHambusCommonLibrary.Services
 {

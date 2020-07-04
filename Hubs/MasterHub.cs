@@ -5,7 +5,7 @@ using BusMaster.Model;
 using CoreHambusCommonLibrary.DataLib;
 using CoreHambusCommonLibrary.Model;
 using CoreHambusCommonLibrary.Services;
-using HambusCommonLibrary;
+using HamBusCommmonCore;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BusMaster.Hubs
