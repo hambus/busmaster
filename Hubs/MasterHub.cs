@@ -21,51 +21,63 @@ namespace BusMaster.Hubs
       this.ActiveBuses = activesBuses;
     }
 
-    //public override async Task OnConnectedAsync()
-    //{
-    //  Console.WriteLine("in OnCnnectedAsync");
-    //}
-    //public override async Task OnDisconnectedAsync(Exception ex)
-    //{
-    //  Console.WriteLine($"Disconnect: connection-id: {Context.ConnectionId}");
-
-    //}
+    public override async Task OnConnectedAsync()
+    {
+      await Task.Delay(0);
+      Console.WriteLine("in OnCnnectedAsync");
+    }
+    public override async Task OnDisconnectedAsync(Exception ex)
+    {
+      await Task.Delay(0);
+      Console.WriteLine($"Disconnect: connection-id: {Context.ConnectionId}");
+    }
     public async Task Login(string name, List<string> groups, List<string> ports)
     {
       name = name.ToLower();
-
-
-      BusConfigurationDB? busConf = null;// = new BusConfigurationDB();
 
       ActiveBuses.Ports = ports;
       ActiveBuses.Name = name;
       ActiveBuses.Configuration = "{}";
 
-      var conf = await GetBusByName(name);
+      var currentBusConf = await GetBusByName(name);
       var confs = await GlobalData.GetBusConfigList();
 
 
       if (name == "control")
       {
-        var busPacket = new UiInfoPacketModel();
-        busPacket.BusesInDb = confs;
 
-        await Clients.Caller.SendAsync("InfoPacket", busPacket);
-        return;
+        await CreateResponseForControl(confs);
       }
-      if (conf != null)
+
+      if (currentBusConf != null)
       {
         await setGroups(groups);
-        await Clients.Caller.SendAsync("ReceiveConfiguration", conf);
+        await Clients.Caller.SendAsync("ReceiveConfiguration", currentBusConf);
       }
       else
       {
-        var errorReport = new HamBusError();
-        errorReport.ErrorNum = HamBusErrorNum.NoConfigure;
-        errorReport.Message = $"No configuration found:  Please go to http://localhost/7300";
-        await Clients.Caller.SendAsync("ErrorReport", errorReport);
+        await CreateResponseForBuses();
       }
 
+      return;
+    }
+
+    private async Task CreateResponseForBuses()
+    {
+      var errorReport = new HamBusError();
+      errorReport.ErrorNum = HamBusErrorNum.NoConfigure;
+      errorReport.Message = $"No configuration found:  Please go to http://localhost/7300";
+      await Clients.Caller.SendAsync("ErrorReport", errorReport);
+    }
+
+    private async Task CreateResponseForControl(List<BusConfigurationDB> confs)
+    {
+      var groupList = new List<string>();
+      groupList.Add("UI");
+      var busPacket = new UiInfoPacketModel();
+      busPacket.BusesInDb = confs;
+      await setGroups(groupList);
+      await Clients.Caller.SendAsync("InfoPacket", busPacket);
       return;
     }
 
@@ -92,7 +104,7 @@ namespace BusMaster.Hubs
       }
       else
       {
-        await GlobalData.InsertBusEntry(config);
+        await GlobalData.InsertBusEntry(config!);
       }
     }
     public async Task<BusConfigurationDB?> GetBusByName(string busName)
@@ -103,6 +115,7 @@ namespace BusMaster.Hubs
     public async Task<List<BusConfigurationDB>> GetListOfBuses()
     {
       var busList = new List<BusConfigurationDB>();
+      await Task.Delay(0);
       return busList;
     }
   }

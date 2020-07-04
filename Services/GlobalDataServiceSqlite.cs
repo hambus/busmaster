@@ -87,15 +87,16 @@ namespace CoreHambusCommonLibrary.Services
         try
         {
           conn.Open();
-          var commandText = $"SELECT name FROM master_conf where name = '{name.ToLower()}'";
+          var commandText = $"SELECT * FROM master_conf where name = '{name.ToLower()}'";
           var cmd = new SqliteCommand(commandText, conn);
           var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
           if (reader.HasRows)
           {
             busConf = new BusConfigurationDB();
             busConf.Id = (int)reader["id"];
-            busConf.Name = (string)reader["name"];
-            busConf.Version = (int)reader["version"];
+            busConf.Name = (string) reader["name"];
+            busConf.Version = (int) reader["version"];
+            busConf.BusType = (BusType) reader["bustype"];
             busConf.Configuration = (string)reader["configuration"];
           }
 
