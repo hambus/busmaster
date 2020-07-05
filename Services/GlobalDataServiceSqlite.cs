@@ -92,11 +92,14 @@ namespace CoreHambusCommonLibrary.Services
           var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
           if (reader.HasRows)
           {
+            await reader.ReadAsync();
             busConf = new BusConfigurationDB();
-            busConf.Id = (int)reader["id"];
+            busConf.Id = (long) reader["id"];
             busConf.Name = (string) reader["name"];
-            busConf.Version = (int) reader["version"];
-            busConf.BusType = (BusType) reader["bustype"];
+            busConf.Version = (long) reader["version"];
+            var btype = (long) reader["bustype"];
+            busConf.BusType = convertToBustype(btype);
+            //busConf.BusType = (BusType) Convert.ToInt32( (long) reader["bustype"]);
             busConf.Configuration = (string)reader["configuration"];
           }
 
@@ -109,6 +112,11 @@ namespace CoreHambusCommonLibrary.Services
           return null;
         }
       }
+    }
+
+    private BusType convertToBustype(long btype) {
+      var rc = Convert.ToInt32(btype);
+      return (BusType)rc;
     }
 
     public async Task UpdateBusEntry(string? name, BusConfigurationDB? conf)
