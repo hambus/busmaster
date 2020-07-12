@@ -40,7 +40,7 @@ namespace BusMaster.Hubs
       ActiveBuses.Configuration = "{}";
 
       var currentBusConf = await GetBusByName(name);
-      Console.WriteLine(currentBusConf.Configuration);
+      Console.WriteLine(currentBusConf!.Configuration);
       var confs = await GlobalData.GetBusConfigList();
 
 
@@ -95,7 +95,7 @@ namespace BusMaster.Hubs
     public async Task RadioStateChange(RigState state)
     {
       Console.WriteLine($"State change {state.Freq}");
-      await Clients.Group("RadioStateChange").SendAsync("state", state);
+      await Clients.Group("radio").SendAsync("state", state);
       return;
     }
     public async Task SaveConfiguration(string busName , BusConfigurationDB config)
