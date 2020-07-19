@@ -27,7 +27,7 @@ namespace BusMaster
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
-        .WithOrigins("http://localhost:4200");
+        .WithOrigins("http://localhost:61907");
       }));
 
       services.AddSignalR();
