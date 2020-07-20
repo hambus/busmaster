@@ -214,7 +214,7 @@ namespace CoreHambusCommonLibrary.Services
             item.Version = reader.GetInt32(3);
             item.BusType = (BusType) reader.GetInt32(4);
             list.Add(item);
-            break;
+            Console.WriteLine($"Name: ${item.Name}   ");
           }
           return list;
         }

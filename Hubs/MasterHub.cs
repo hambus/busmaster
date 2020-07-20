@@ -39,15 +39,18 @@ namespace BusMaster.Hubs
       ActiveBuses.Configuration = "{}";
 
       var currentBusConf = await GetBusByName(name);
-      //Console.WriteLine(currentBusConf!.Configuration);
       var confs = await GlobalData.GetBusConfigList();
 
-
       if (name == "control")
-      {
-        await CreateResponseForControl(confs);
-      }
+        await SendResponseForControl(confs); 
+      else
+        await SendResponseToBuses(groups, currentBusConf);
 
+      return;
+    }
+
+    private async Task SendResponseToBuses(List<string> groups, BusConfigurationDB? currentBusConf)
+    {
       if (currentBusConf != null)
       {
         Console.WriteLine(currentBusConf.Configuration);
@@ -58,8 +61,6 @@ namespace BusMaster.Hubs
       {
         await CreateResponseForBuses();
       }
-
-      return;
     }
 
     private async Task CreateResponseForBuses()
@@ -70,7 +71,7 @@ namespace BusMaster.Hubs
       await Clients.Caller.SendAsync("ErrorReport", errorReport);
     }
 
-    private async Task CreateResponseForControl(List<BusConfigurationDB> confs)
+    private async Task SendResponseForControl(List<BusConfigurationDB> confs)
     {
       var groupList = new List<string>();
       groupList.Add("UI");
