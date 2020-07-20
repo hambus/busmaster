@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using BusMaster.Model;
+using HamBusCommonCore.Model;
 
 namespace BusMaster
 {
-  public class ActiveBusesModel
+  public class ActiveBusesModel : HamBusBase
   {
     public int? Id { get; set; }
     public string? Name { get; set; }

@@ -31,22 +31,20 @@ namespace BusMaster.Hubs
       await Task.Delay(0);
       Console.WriteLine($"Disconnect: connection-id: {Context.ConnectionId}");
     }
-    public async Task Login(string name, List<string> groups, List<string> ports)
+    public async Task Login(string name, List<string> groups)
     {
       name = name.ToLower();
 
-      ActiveBuses.Ports = ports;
       ActiveBuses.Name = name;
       ActiveBuses.Configuration = "{}";
 
       var currentBusConf = await GetBusByName(name);
-      Console.WriteLine(currentBusConf!.Configuration);
+      //Console.WriteLine(currentBusConf!.Configuration);
       var confs = await GlobalData.GetBusConfigList();
 
 
       if (name == "control")
       {
-
         await CreateResponseForControl(confs);
       }
 
@@ -76,10 +74,12 @@ namespace BusMaster.Hubs
     {
       var groupList = new List<string>();
       groupList.Add("UI");
-      var busPacket = new UiInfoPacketModel();
-      busPacket.BusesInDb = confs;
+
+      var infoPkt = new UiInfoPacketModel();
+      infoPkt.BusesInDb = confs;
       await setGroups(groupList);
-      await Clients.Caller.SendAsync("InfoPacket", busPacket);
+      Console.WriteLine("Sending to UI: " + infoPkt.ToString()) ;
+      await Clients.Caller.SendAsync("InfoPacket", infoPkt);
       return;
     }
 
