@@ -44,12 +44,13 @@ namespace BusMaster.Hubs
       if (name == "control")
         await SendResponseForControl(confs); 
       else
-        await SendResponseToBuses(groups, currentBusConf);
+        await SendResponseToBuses(groups, currentBusConf,name);
 
       return;
     }
 
-    private async Task SendResponseToBuses(List<string> groups, BusConfigurationDB? currentBusConf)
+    private async Task SendResponseToBuses(List<string> groups, BusConfigurationDB? currentBusConf, 
+      string name)
     {
       if (currentBusConf != null)
       {
@@ -59,15 +60,24 @@ namespace BusMaster.Hubs
       }
       else
       {
-        await CreateResponseForBuses();
+        await NoConfigFoundForBus(name);
       }
     }
 
-    private async Task CreateResponseForBuses()
+    private async Task NoConfigFoundForBus(string name)
     {
-      var errorReport = new HamBusError();
-      errorReport.ErrorNum = HamBusErrorNum.NoConfigure;
-      errorReport.Message = $"No configuration found:  Please go to http://localhost/7300";
+      var errorReport = new HamBusError
+      {
+        ErrorNum = HamBusErrorNum.NoConfigure,
+        Message = $"No configuration found:  Please go to http://localhost/7300"
+      };
+      var newConf = new BusConfigurationDB
+      {
+        Name = name,
+        Version = 1,
+      };
+
+      await GlobalData.InsertBusEntry(newConf);
       await Clients.Caller.SendAsync("ErrorReport", errorReport);
     }
 
@@ -76,8 +86,10 @@ namespace BusMaster.Hubs
       var groupList = new List<string>();
       groupList.Add("UI");
 
-      var infoPkt = new UiInfoPacketModel();
-      infoPkt.BusesInDb = confs;
+      var infoPkt = new UiInfoPacketModel
+      {
+        BusesInDb = confs
+      };
       await setGroups(groupList);
       Console.WriteLine("Sending to UI: " + infoPkt.ToString()) ;
       await Clients.Caller.SendAsync("InfoPacket", infoPkt);
