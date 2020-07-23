@@ -82,6 +82,7 @@ namespace BusMaster.Hubs
       };
 
       await GlobalData.InsertBusEntry(newConf);
+      errorReport.IncSerial();
       await Clients.Caller.SendAsync("ErrorReport", errorReport);
     }
 
