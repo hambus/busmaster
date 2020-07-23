@@ -14,7 +14,8 @@ namespace BusMaster.Hubs
   {
     public IGlobalDataService GlobalData { get; set; }
     public ActiveBusesService ActiveBuses { get; set; }
-    
+
+    #region Setup
     public MasterHub(IGlobalDataService globalDb, ActiveBusesService activesBuses)
     {
       GlobalData = globalDb;
@@ -31,10 +32,12 @@ namespace BusMaster.Hubs
       await Task.Delay(0);
       Console.WriteLine($"Disconnect: connection-id: {Context.ConnectionId}");
     }
+    #endregion
+
     public async Task Login(string name, List<string> groups)
     {
       name = name.ToLower();
-
+      groups.Add(name);
       ActiveBuses.Name = name;
       ActiveBuses.Configuration = "{}";
 
@@ -56,6 +59,7 @@ namespace BusMaster.Hubs
       {
         Console.WriteLine(currentBusConf.Configuration);
         await setGroups(groups);
+        currentBusConf.IncSerial();
         await Clients.Caller.SendAsync("ReceiveConfiguration", currentBusConf);
       }
       else
@@ -84,7 +88,7 @@ namespace BusMaster.Hubs
     private async Task SendResponseForControl(List<BusConfigurationDB> confs)
     {
       var groupList = new List<string>();
-      groupList.Add("UI");
+      groupList.Add("control");
 
       var infoPkt = new UiInfoPacketModel
       {
@@ -92,6 +96,7 @@ namespace BusMaster.Hubs
       };
       await setGroups(groupList);
       Console.WriteLine("Sending to UI: " + infoPkt.ToString()) ;
+      infoPkt.IncSerial();
       await Clients.Caller.SendAsync("InfoPacket", infoPkt);
       return;
     }
@@ -107,8 +112,10 @@ namespace BusMaster.Hubs
 
     public async Task RadioStateChange(RigState state)
     {
+      state.IncSerial();
       Console.WriteLine($"State change {state.Freq}");
       await Clients.Group("radio").SendAsync("state", state);
+      await Clients.Group("control").SendAsync("state", state);
       return;
     }
     public async Task SaveConfiguration(string busName , BusConfigurationDB config)
