@@ -6,6 +6,7 @@ using CoreHambusCommonLibrary.DataLib;
 using CoreHambusCommonLibrary.Model;
 using CoreHambusCommonLibrary.Services;
 using HamBusCommmonCore;
+using HamBusCommonCore.Model;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BusMaster.Hubs
@@ -34,6 +35,10 @@ namespace BusMaster.Hubs
     }
     #endregion
 
+    public async Task LockRig(LockModel locker)
+    {
+      await Clients.Group(locker.Name).SendAsync("LockRig", locker);
+    }
     public async Task Login(string name, List<string> groups)
     {
       name = name.ToLower();
