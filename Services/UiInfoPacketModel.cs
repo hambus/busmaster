@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using BusMaster;
 using CoreHambusCommonLibrary.DataLib;
+using CoreHambusCommonLibrary.Model;
+using CoreHambusCommonLibrary.Services;
 using HamBusCommonCore.Model;
 
-namespace BusMaster.Model
+namespace CoreHambusCommonLibrary.Services
 {
   public class UiInfoPacketModel : HamBusBase
   {
