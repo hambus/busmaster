@@ -143,7 +143,7 @@ namespace BusMaster.Hubs
     public async Task RadioStateChange(RigState state)
     {
       state.IncSerial();
-      Console.WriteLine($"State change {state.Freq}");
+      Console.WriteLine($"State change {state.Name} {state.Freq}");
       await Clients.Group(SignalRGroups.Radio).SendAsync(SignalRCommands.State, state);
       await Clients.Group(SignalRGroups.Control).SendAsync(SignalRCommands.State, state);
       return;
