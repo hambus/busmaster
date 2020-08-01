@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusMaster", "BusMaster.cspr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HamBusCommonCore", "..\HamBusCommonLibCore\HamBusCommonCore.csproj", "{49969F0E-55E4-4042-8AA8-EC6ECCA7F21C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HamBusCommonStd", "..\HamBusCommonStd\HamBusCommonStd\HamBusCommonStd.csproj", "{5F3A9344-D8D3-4CB8-B69B-E265B78EC6ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{49969F0E-55E4-4042-8AA8-EC6ECCA7F21C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49969F0E-55E4-4042-8AA8-EC6ECCA7F21C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49969F0E-55E4-4042-8AA8-EC6ECCA7F21C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F3A9344-D8D3-4CB8-B69B-E265B78EC6ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F3A9344-D8D3-4CB8-B69B-E265B78EC6ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F3A9344-D8D3-4CB8-B69B-E265B78EC6ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F3A9344-D8D3-4CB8-B69B-E265B78EC6ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

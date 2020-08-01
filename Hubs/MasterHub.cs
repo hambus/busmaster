@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreHambusCommonLibrary.Model;
 using CoreHambusCommonLibrary.Services;
-using HamBusCommmonCore;
+using HamBusCommmonStd;
 using HamBusCommonCore.Model;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BusMaster.Hubs
@@ -14,7 +13,7 @@ namespace BusMaster.Hubs
   {
   
     public IGlobalDataService GlobalData { get; set; }
-  
+    static private int num = 0;
     private ActiveBusesService ActiveService { get; }
 
     #region Setup
@@ -142,8 +141,9 @@ namespace BusMaster.Hubs
 
     public async Task RadioStateChange(RigState state)
     {
+      
       state.IncSerial();
-      Console.WriteLine($"State change {state.Name} {state.Freq}");
+      Console.WriteLine($"State change {state.Name} {state.Freq} {num++}");
       await Clients.Group(SignalRGroups.Radio).SendAsync(SignalRCommands.State, state);
       await Clients.Group(SignalRGroups.Control).SendAsync(SignalRCommands.State, state);
       return;
