@@ -143,9 +143,10 @@ namespace BusMaster.Hubs
     {
       
       state.IncSerial();
-      Console.WriteLine($"State change {state.Name} {state.Freq} {num++}");
-      await Clients.Group(SignalRGroups.Radio).SendAsync(SignalRCommands.State, state);
+      Console.WriteLine($"146: State change {state.Name} {state.Freq} {state.SerialNum} ");
       await Clients.Group(SignalRGroups.Control).SendAsync(SignalRCommands.State, state);
+      await Clients.Group(SignalRGroups.Radio).SendAsync(SignalRCommands.State, state);
+
       return;
     }
     public async Task SaveConfiguration(string busName , BusConfigurationDB config)
