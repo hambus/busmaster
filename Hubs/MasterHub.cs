@@ -5,6 +5,7 @@ using CoreHambusCommonLibrary.Model;
 using CoreHambusCommonLibrary.Services;
 using HamBusCommmonStd;
 using HamBusCommonCore.Model;
+using HamBusCommonStd;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BusMaster.Hubs
@@ -68,7 +69,7 @@ namespace BusMaster.Hubs
         anewBus.Name = name;
         anewBus.ConnectionId = Context.ConnectionId;
         anewBus.IsActive = true;
-        anewBus.Type = Model.BusType.RigBus;
+        anewBus.Type = BusType.RigBus;
         ActiveService.Add(anewBus);
         await SendActiveUpdate(anewBus);
         await SendResponseToBuses(groups, currentBusConf, name);

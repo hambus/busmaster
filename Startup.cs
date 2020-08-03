@@ -1,5 +1,6 @@
 using BusMaster.Hubs;
 using CoreHambusCommonLibrary.Services;
+using HamBusCommonStd;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
