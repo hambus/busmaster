@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreHambusCommonLibrary.Model;
 using CoreHambusCommonLibrary.Services;
-using HamBusCommmonStd;
 using HamBusCommonCore.Model;
 using HamBusCommonStd;
 using Microsoft.AspNetCore.SignalR;
@@ -54,8 +53,6 @@ namespace BusMaster.Hubs
     public async Task Login(string name, List<string> groups)
     {
       name = name.ToLower();
-      groups.Add(name);
-
 
 
       var confs = await GlobalData.GetBusConfigList();
@@ -64,14 +61,15 @@ namespace BusMaster.Hubs
         await SendResponseForControl(confs);
       else
       {
+        groups.Add(name);
         var currentBusConf = await GetBusByName(name);
-        var anewBus = new ActiveBusesModel();
-        anewBus.Name = name;
-        anewBus.ConnectionId = Context.ConnectionId;
-        anewBus.IsActive = true;
-        anewBus.Type = BusType.RigBus;
-        ActiveService.Add(anewBus);
-        await SendActiveUpdate(anewBus);
+        var newBus = new ActiveBusesModel();
+        newBus.Name = name;
+        newBus.ConnectionId = Context.ConnectionId;
+        newBus.IsActive = true;
+        newBus.Type = BusType.RigBus;
+        ActiveService.Add(newBus);
+        await SendActiveUpdate(newBus);
         await SendResponseToBuses(groups, currentBusConf, name);
       }
       return;
