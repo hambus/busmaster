@@ -13,7 +13,6 @@ namespace BusMaster.Hubs
   {
   
     public IGlobalDataService GlobalData { get; set; }
-    static private int num = 0;
     private ActiveBusesService ActiveService { get; }
 
     #region Setup
@@ -32,7 +31,7 @@ namespace BusMaster.Hubs
     {
       await Task.Delay(0);
       Console.WriteLine($"Disconnect: connection-id: {Context.ConnectionId}");
-      var removedBus = ActiveService.Find(Context.ConnectionId);
+      var removedBus = ActiveService.FindById(Context.ConnectionId);
       ActiveService.Remove(Context.ConnectionId);
       if (removedBus != null)
       {
@@ -143,8 +142,10 @@ namespace BusMaster.Hubs
       
       state.IncSerial();
       Console.WriteLine($"146: State change {state.Name} {state.Freq} {state.SerialNum} ");
+      ActiveService.UpdateState(state);
       await Clients.Group(SignalRGroups.Control).SendAsync(SignalRCommands.State, state);
       await Clients.Group(SignalRGroups.Radio).SendAsync(SignalRCommands.State, state);
+
 
       return;
     }

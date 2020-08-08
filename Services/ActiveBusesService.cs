@@ -16,9 +16,14 @@ namespace CoreHambusCommonLibrary.Services
 
       ActiveBuses.Add(activeBus);
     }
-    public ActiveBusesModel? Find(string activeId)
+    public ActiveBusesModel? FindById(string activeId)
     {
       var activeBusObj = ActiveBuses.Find(item => item.ConnectionId == activeId);
+      return activeBusObj;
+    }
+    public ActiveBusesModel? FindByName(string name)
+    {
+      var activeBusObj = ActiveBuses.Find(item => item.Name == name);
       return activeBusObj;
     }
     public void Remove(string activeBusId)
@@ -26,6 +31,13 @@ namespace CoreHambusCommonLibrary.Services
       var activeBusObj = ActiveBuses.Find(item => item.ConnectionId == activeBusId);
       if (activeBusObj != null)
         ActiveBuses.Remove(activeBusObj);
+    }
+    public void UpdateState(RigState state)
+    {
+      var activeBus = FindByName(state.Name);
+      if (activeBus != null)
+        activeBus.State = state;
+
     }
   }
 }
