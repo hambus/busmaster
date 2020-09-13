@@ -6,6 +6,7 @@ using CoreHambusCommonLibrary.Services;
 using HamBusCommonCore.Model;
 using HamBusCommonStd;
 using Microsoft.AspNetCore.SignalR;
+using Serilog;
 
 namespace BusMaster.Hubs
 {
@@ -25,12 +26,12 @@ namespace BusMaster.Hubs
     public override async Task OnConnectedAsync()
     {
       await Task.Delay(0);
-      Console.WriteLine("in OnCnnectedAsync");
+      Log.Debug("in OnCnnectedAsync");
     }
     public override async Task OnDisconnectedAsync(Exception ex)
     {
       await Task.Delay(0);
-      Console.WriteLine($"Disconnect: connection-id: {Context.ConnectionId}");
+      Log.Debug($"Disconnect: connection-id: {Context.ConnectionId}");
       var removedBus = ActiveService.FindById(Context.ConnectionId);
       ActiveService.Remove(Context.ConnectionId);
       if (removedBus != null)
@@ -62,11 +63,13 @@ namespace BusMaster.Hubs
       {
         groups.Add(name);
         var currentBusConf = await GetBusByName(name);
-        var newBus = new ActiveBusesModel();
-        newBus.Name = name;
-        newBus.ConnectionId = Context.ConnectionId;
-        newBus.IsActive = true;
-        newBus.Type = BusType.RigBus;
+        var newBus = new ActiveBusesModel
+        {
+          Name = name,
+          ConnectionId = Context.ConnectionId,
+          IsActive = true,
+          Type = BusType.RigBus
+        };
         if (newBus.State == null)
           newBus.State = new RigState();
         ActiveService.Add(newBus);
@@ -85,8 +88,8 @@ namespace BusMaster.Hubs
     {
       if (currentBusConf != null)
       {
-        Console.WriteLine(currentBusConf.Configuration);
-        await setGroups(groups);
+        Log.Debug(currentBusConf.Configuration);
+        await SetGroups(groups);
         currentBusConf.IncSerial();
         await Clients.Caller.SendAsync(SignalRCommands.ReceiveConfiguration, currentBusConf);
       }
@@ -116,25 +119,27 @@ namespace BusMaster.Hubs
 
     private async Task SendResponseForControl(List<BusConfigurationDB> confs)
     {
-      var groupList = new List<string>();
-      groupList.Add(SignalRGroups.Control);
+      var groupList = new List<string>
+      {
+        SignalRGroups.Control
+      };
 
       var infoPkt = new UiInfoPacketModel
       {
         BusesInDb = confs,
         ActiveBuses = ActiveService.ActiveBuses
       };
-      await setGroups(groupList);
+      await SetGroups(groupList);
       infoPkt.IncSerial();
       await Clients.Caller.SendAsync(SignalRCommands.InfoPacket, infoPkt);
       return;
     }
 
-    private async Task setGroups(List<string> groups)
+    private async Task SetGroups(List<string> groups)
     {
       foreach (var group in groups)
       {
-        Console.WriteLine($"in groups: {group}");
+        Log.Debug($"in groups: {group}");
         await this.Groups.AddToGroupAsync(this.Context.ConnectionId, group);
       }
     }
@@ -143,7 +148,7 @@ namespace BusMaster.Hubs
     {
       
       state.IncSerial();
-      Console.WriteLine($"146: State change {state.Name} {state.Freq} {state.SerialNum} ");
+      Log.Debug("146: State change {@state} ", state);
       ActiveService.UpdateState(state);
       await Clients.Group(SignalRGroups.Control).SendAsync(SignalRCommands.State, state);
       await Clients.Group(SignalRGroups.Radio).SendAsync(SignalRCommands.State, state);
@@ -153,7 +158,7 @@ namespace BusMaster.Hubs
     }
     public async Task SaveConfiguration(string busName , BusConfigurationDB config)
     {
-      Console.WriteLine(busName);
+      Log.Debug(busName);
       if (config?.Id != null)
       {
         await GlobalData.UpdateBusEntry(busName, config);

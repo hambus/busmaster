@@ -19,7 +19,7 @@ namespace CoreHambusCommonLibrary.Services
     public int? Port { get; set; }
     public string? ConnString { get; set; }
     public string? Configuration { get; set; }
-    public BusInit busInit { get; set; } = new BusInit();
+    public BusInit BusInit { get; set; } = new BusInit();
 
 
 
@@ -53,23 +53,21 @@ namespace CoreHambusCommonLibrary.Services
       BuildConnectString();
       try
       {
-        using (IDbConnection conn = new SqliteConnection(ConnString))
+        using IDbConnection conn = new SqliteConnection(ConnString);
+        try
         {
-          try
+          conn.Open();
+          if (!DoesTableExist("master_conf"))
           {
-            conn.Open();
-            if (!DoesTableExist("master_conf"))
-            {
-              CreateTable(conn);
-              Console.WriteLine("created table");
-            }
-            else
-              Log.Warning("Table exist");
+            CreateTable(conn);
+            Console.WriteLine("created table");
           }
-          catch (Exception ee)
-          {
-            Console.WriteLine($"InitDB {ee.Message}");
-          }
+          else
+            Log.Warning("Table exist");
+        }
+        catch (Exception ee)
+        {
+          Console.WriteLine($"InitDB {ee.Message}");
         }
       }
       catch (Exception e)
@@ -83,86 +81,78 @@ namespace CoreHambusCommonLibrary.Services
     {
       BusConfigurationDB? busConf = null;
 
-      using (var conn = new SqliteConnection(ConnString))
+      using var conn = new SqliteConnection(ConnString);
+      try
       {
-        try
+        conn.Open();
+        var commandText = $"SELECT * FROM master_conf where name = '{name.ToLower()}'";
+        var cmd = new SqliteCommand(commandText, conn);
+        var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
+        if (reader.HasRows)
         {
-          conn.Open();
-          var commandText = $"SELECT * FROM master_conf where name = '{name.ToLower()}'";
-          var cmd = new SqliteCommand(commandText, conn);
-          var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
-          if (reader.HasRows)
+          await reader.ReadAsync();
+          busConf = new BusConfigurationDB
           {
-            await reader.ReadAsync();
-            busConf = new BusConfigurationDB();
-            busConf.Id = (long) reader["id"];
-            busConf.Name = (string) reader["name"];
-            busConf.Version = (long) reader["version"];
-            var btype = (long) reader["bustype"];
-            busConf.BusType = convertToBustype(btype);
-            //busConf.BusType = (BusType) Convert.ToInt32( (long) reader["bustype"]);
-            busConf.Configuration = (string)reader["configuration"];
-          }
-
-          return busConf;
+            Id = (long)reader["id"],
+            Name = (string)reader["name"],
+            Version = (long)reader["version"]
+          };
+          var btype = (long)reader["bustype"];
+          busConf.BusType = ConvertToBustype(btype);
+          //busConf.BusType = (BusType) Convert.ToInt32( (long) reader["bustype"]);
+          busConf.Configuration = (string)reader["configuration"];
         }
-        catch (Exception e)
-        {
 
-          Console.WriteLine($"QueryBusByName: {e.Message}");
-          return null;
-        }
+        return busConf;
+      }
+      catch (Exception e)
+      {
+
+        Console.WriteLine($"QueryBusByName: {e.Message}");
+        return null;
       }
     }
 
-    private BusType convertToBustype(long btype) {
+    private BusType ConvertToBustype(long btype) {
       var rc = Convert.ToInt32(btype);
       return (BusType)rc;
     }
 
     public async Task UpdateBusEntry(string? name, BusConfigurationDB? conf)
     {
-      using (var conn = new SqliteConnection(ConnString))
-      {
-        conn.Open();
-        using (var transaction = conn.BeginTransaction())
-        {
-          var cmd = conn.CreateCommand();
-          cmd.CommandText = $"update into master_conf ( version, name, configuration) values ( 1.0,  '{conf!.Name.ToLower()}', '{conf.Configuration}') where id = '{conf.Id}'";
-          cmd.CommandText = $"update into master_conf ( version, name, configuration) values ( @version,  @name, @conf) where id = @id";
-          cmd.Parameters.AddWithValue("@version", conf.Version);
-          cmd.Parameters.AddWithValue("@name", conf.Name);
-          cmd.Parameters.AddWithValue("@conf", conf.Configuration);
-          cmd.Parameters.AddWithValue("@id", conf.Id);
+      using var conn = new SqliteConnection(ConnString);
+      conn.Open();
+      using var transaction = conn.BeginTransaction();
+      var cmd = conn.CreateCommand();
+      cmd.CommandText = $"update into master_conf ( version, name, configuration) values ( 1.0,  '{conf!.Name.ToLower()}', '{conf.Configuration}') where id = '{conf.Id}'";
+      cmd.CommandText = $"update into master_conf ( version, name, configuration) values ( @version,  @name, @conf) where id = @id";
+      cmd.Parameters.AddWithValue("@version", conf.Version);
+      cmd.Parameters.AddWithValue("@name", conf.Name);
+      cmd.Parameters.AddWithValue("@conf", conf.Configuration);
+      cmd.Parameters.AddWithValue("@id", conf.Id);
 
-          cmd.Prepare();
-          await cmd.ExecuteNonQueryAsync();
+      cmd.Prepare();
+      await cmd.ExecuteNonQueryAsync();
 
-          transaction.Commit();
-        }
-      }
+      transaction.Commit();
     }
     public async Task InsertBusEntry(BusConfigurationDB conf)
     {
-      using (var conn = new SqliteConnection(ConnString))
-      {
-        conn.Open();
+      using var conn = new SqliteConnection(ConnString);
+      conn.Open();
 
-        using (var transaction = conn.BeginTransaction())
-        {
-          var cmd = conn.CreateCommand();
-          cmd.CommandText = "insert into master_conf ( version, name, configuration, bustype) values ( @version, @name, @conf, @bustype)";
-          cmd.Parameters.AddWithValue("@version", conf.Version);
-          cmd.Parameters.AddWithValue("@name", conf.Name);
-          cmd.Parameters.AddWithValue("@bustype", (int)conf.BusType);
-          cmd.Parameters.AddWithValue("@conf", conf.Configuration);
-          cmd.Prepare();
+      using var transaction = conn.BeginTransaction();
+      var cmd = conn.CreateCommand();
+      cmd.CommandText = "insert into master_conf ( version, name, configuration, bustype) values ( @version, @name, @conf, @bustype)";
+      cmd.Parameters.AddWithValue("@version", conf.Version);
+      cmd.Parameters.AddWithValue("@name", conf.Name);
+      cmd.Parameters.AddWithValue("@bustype", (int)conf.BusType);
+      cmd.Parameters.AddWithValue("@conf", conf.Configuration);
+      cmd.Prepare();
 
-          await cmd.ExecuteNonQueryAsync();
+      await cmd.ExecuteNonQueryAsync();
 
-          await transaction.CommitAsync();
-        }
-      }
+      await transaction.CommitAsync();
     }
 
     //private void CreateInitalEntryForMasterBus(IDbCommand cmd, IDataReader reader)
@@ -196,64 +186,53 @@ namespace CoreHambusCommonLibrary.Services
 
     public async Task<List<BusConfigurationDB>> GetBusConfigList()
     {
-      using (var conn = new SqliteConnection(ConnString))
-      {
-        conn.Open();
-        var list = new List<BusConfigurationDB>();
+      using var conn = new SqliteConnection(ConnString);
+      conn.Open();
+      var list = new List<BusConfigurationDB>();
 
-        var commandText = $"SELECT id, name, configuration, version, bustype FROM master_conf";
-        var cmd = new SqliteCommand(commandText, conn);
-        
-        using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default))
+      var commandText = $"SELECT id, name, configuration, version, bustype FROM master_conf";
+      var cmd = new SqliteCommand(commandText, conn);
+
+      using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.Default);
+      while (reader.Read())
+      {
+        var item = new BusConfigurationDB
         {
-          while (reader.Read())
-          {
-            var item = new BusConfigurationDB();
-            item.Id = reader.GetInt32(0);
-            item.Name = reader.GetString(1);
-            item.Configuration = reader.GetString(2);
-            item.Version = reader.GetInt32(3);
-            item.BusType = (BusType) reader.GetInt32(4);
-            list.Add(item);
-            Console.WriteLine($"Name: ${item.Name}   ");
-          }
-          return list;
-        }
+          Id = reader.GetInt32(0),
+          Name = reader.GetString(1),
+          Configuration = reader.GetString(2),
+          Version = reader.GetInt32(3),
+          BusType = (BusType)reader.GetInt32(4)
+        };
+        list.Add(item);
+        Console.WriteLine($"Name: ${item.Name}   ");
       }
+      return list;
     }
 
     private bool DoesTableExist(string tableName)
     {
-      using (var conn = new SqliteConnection(ConnString))
-      {
-        conn.Open();
-        bool rc = false;
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = $"SELECT name FROM sqlite_master WHERE type = 'table' AND name = '{tableName}'";
+      using var conn = new SqliteConnection(ConnString);
+      conn.Open();
+      bool rc = false;
+      var cmd = conn.CreateCommand();
+      cmd.CommandText = $"SELECT name FROM sqlite_master WHERE type = 'table' AND name = '{tableName}'";
 
-        using (var reader = cmd.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            var table = reader.GetString(0);
-            rc = !string.IsNullOrWhiteSpace(table);
-            break;
-          }
-          return rc;
-        }
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read())
+      {
+        var table = reader.GetString(0);
+        rc = !string.IsNullOrWhiteSpace(table);
+        break;
       }
+      return rc;
     }
 
 
     private void BuildConnectString()
     {
-      var source = busInit.DataFolder + "\\hambus.db";
+      var source = BusInit.DataFolder + "\\hambus.db";
       ConnString = $"data source={source}";
-    }
-
-    private string BuildQuery()
-    {
-      return "";
     }
   }
 }
