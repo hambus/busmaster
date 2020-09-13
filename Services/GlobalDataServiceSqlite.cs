@@ -6,6 +6,7 @@ using CoreHambusCommonLibrary.DataLib;
 using Dapper;
 using HamBusCommonStd;
 using Microsoft.Data.Sqlite;
+using Serilog;
 
 namespace CoreHambusCommonLibrary.Services
 {
@@ -63,7 +64,7 @@ namespace CoreHambusCommonLibrary.Services
               Console.WriteLine("created table");
             }
             else
-              Console.WriteLine("Table exist");
+              Log.Debug("Table exist");
           }
           catch (Exception ee)
           {

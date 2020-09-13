@@ -67,6 +67,8 @@ namespace BusMaster.Hubs
         newBus.ConnectionId = Context.ConnectionId;
         newBus.IsActive = true;
         newBus.Type = BusType.RigBus;
+        if (newBus.State == null)
+          newBus.State = new RigState();
         ActiveService.Add(newBus);
         await SendActiveUpdate(newBus);
         await SendResponseToBuses(groups, currentBusConf, name);
