@@ -64,7 +64,7 @@ namespace CoreHambusCommonLibrary.Services
               Console.WriteLine("created table");
             }
             else
-              Log.Debug("Table exist");
+              Log.Warning("Table exist");
           }
           catch (Exception ee)
           {
