@@ -15,12 +15,15 @@ namespace BusMaster.Hubs
   
     public IGlobalDataService GlobalData { get; set; }
     private ActiveBusesService ActiveService { get; }
-
+    private RigState globalState = new RigState();
     #region Setup
     public MasterHub(IGlobalDataService gd, ActiveBusesService ab)
     {
       GlobalData = gd;
       ActiveService = ab;
+      globalState.Freq = 7777777;
+      globalState.Mode = "USB";
+      
     }
 
     public override async Task OnConnectedAsync()
@@ -63,6 +66,10 @@ namespace BusMaster.Hubs
       {
         groups.Add(name);
         var currentBusConf = await GetBusByName(name);
+        if (currentBusConf == null)
+        {
+          Log.Warning("GetBusByName returned null on Login");
+        }
         var newBus = new ActiveBusesModel
         {
           Name = name,
@@ -70,9 +77,18 @@ namespace BusMaster.Hubs
           IsActive = true,
           Type = BusType.RigBus
         };
+
         if (newBus.State == null)
           newBus.State = new RigState();
         ActiveService.Add(newBus);
+
+        if (currentBusConf!.BusType == BusType.VirtualRigBus)
+        {
+          Log.Warning("sending state to virtual rig");
+          globalState.Name = name;
+          await Clients.Caller.SendAsync(SignalRCommands.State, globalState);
+        }
+
         await SendActiveUpdate(newBus);
         await SendResponseToBuses(groups, currentBusConf, name);
       }
@@ -148,6 +164,7 @@ namespace BusMaster.Hubs
     {
       
       state.IncSerial();
+      globalState = state;
       Log.Debug("146: State change {@state} ", state);
       ActiveService.UpdateState(state);
       await Clients.Group(SignalRGroups.Control).SendAsync(SignalRCommands.State, state);
