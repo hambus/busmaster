@@ -60,20 +60,19 @@ namespace CoreHambusCommonLibrary.Services
           if (!DoesTableExist("master_conf"))
           {
             CreateTable(conn);
-            Console.WriteLine("created table");
+            Log.Information("created table");
           }
           else
-            Log.Warning("Table exist");
+            Log.Information("Table exist");
         }
         catch (Exception ee)
         {
-          Console.WriteLine($"InitDB {ee.Message}");
+          Log.Error("InitDB {@ee}", ee);
         }
       }
       catch (Exception e)
       {
-        Console.WriteLine(e.Message);
-
+        Log.Error("GlobalDataServiceSqlite: Exception {@e}", e);
       }
     }
 
@@ -107,8 +106,7 @@ namespace CoreHambusCommonLibrary.Services
       }
       catch (Exception e)
       {
-
-        Console.WriteLine($"QueryBusByName: {e.Message}");
+        Log.Error("globalDataServiceSqlite: Exception {@e}", e);
         return null;
       }
     }
@@ -180,7 +178,7 @@ namespace CoreHambusCommonLibrary.Services
         "[version] NUMERIC NOT NULL DEFAULT 1, " +
         "[bustype] NUMERIC NOT NULL DEFAULT 0 " +
          ")";
-      Console.WriteLine(createCmd);
+
       conn.Execute(createCmd);
     }
 
@@ -205,7 +203,7 @@ namespace CoreHambusCommonLibrary.Services
           BusType = (BusType)reader.GetInt32(4)
         };
         list.Add(item);
-        Console.WriteLine($"Name: ${item.Name}   ");
+        Log.Information("Name: ${@item.Name}   ",item.Name);
       }
       return list;
     }

@@ -56,7 +56,7 @@ namespace BusMaster
       }
       catch (Exception e)
       {
-        Console.WriteLine(e.Message);
+        Log.Error("Program: Main threw exception: {@e}", e);
       }
     }
 
@@ -67,6 +67,7 @@ namespace BusMaster
             {
               webBuilder.UseStartup<Startup>();
               var conf = GlobalDataServiceSqlite.Instance;
+              var url = $"http://*:{conf.Host}:{conf.Port}";
               _ = webBuilder.UseUrls($"http://*:{conf.Host}:{conf.Port}");
             }).UseSerilog();
     static void RunOptions(Options opts)
